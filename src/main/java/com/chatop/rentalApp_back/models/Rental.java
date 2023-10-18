@@ -27,7 +27,7 @@ public class Rental {
     private int surface;
     private int price;
     @Size(max = 255)
-    private String pricture;
+    private String picture;
     @Size(max = 2000)
     private String description;
     @ManyToOne
@@ -38,4 +38,5 @@ public class Rental {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
 }
