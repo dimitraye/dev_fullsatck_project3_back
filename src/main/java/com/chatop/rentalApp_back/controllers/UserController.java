@@ -1,5 +1,6 @@
 package com.chatop.rentalApp_back.controllers;
 
+import com.chatop.rentalApp_back.dto.UserDTO;
 import com.chatop.rentalApp_back.models.User;
 import com.chatop.rentalApp_back.services.UserService;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/auth")
 public class UserController {
-    PasswordEncoder encoder;
+
     UserService userService;
 
     PasswordEncoder passwordEncoder;
@@ -50,7 +51,7 @@ public class UserController {
             return ResponseEntity.badRequest().body("Email is already used");
         }
 
-        user.setPassword(encoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         //sauvegarde du user
         try {
@@ -69,7 +70,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginForm) {
-        String email = loginForm.get("login");
+        String email = loginForm.get("email");
         String password = loginForm.get("password");
 
         if (StringUtils.isEmpty(email) ||
@@ -108,7 +109,7 @@ public class UserController {
             return ResponseEntity.badRequest().body("User not found");
         }
 
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(new UserDTO(user.get()), HttpStatus.OK);
     }
 
 

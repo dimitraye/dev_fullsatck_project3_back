@@ -1,30 +1,37 @@
 package com.chatop.rentalApp_back.controllers;
 
+import com.chatop.rentalApp_back.dto.RentalDTO;
 import com.chatop.rentalApp_back.models.Rental;
+import com.chatop.rentalApp_back.models.User;
 import com.chatop.rentalApp_back.services.FileStorageService;
 import com.chatop.rentalApp_back.services.RentalService;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.chatop.rentalApp_back.services.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Manage the requests linked to a Rental
  */
 @Slf4j
 @RestController
-@RequestMapping("api/rentals")
+@RequestMapping("/api/rentals")
 @AllArgsConstructor
 public class RentalController {
     private final RentalService rentalService;
     private final FileStorageService fileStorageService;
+
+    private final UserService userService;
 
 
 
@@ -33,9 +40,10 @@ public class RentalController {
      * @return a list of rentals
      */
     @GetMapping
-    public List<Rental> findAll(Principal principal) {
-
-        return rentalService.findAll();
+    public ResponseEntity<?> findAll(Principal principal) {
+        List<Rental> rentals = rentalService.findAll();
+        Stream<RentalDTO> rentalDTOStream = rentals.stream().map(rental -> new RentalDTO(rental));
+        return new ResponseEntity<>(Map.of("rentals",rentalDTOStream), HttpStatus.OK);
     }
 
     /**
@@ -45,7 +53,7 @@ public class RentalController {
      * @return rental
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Rental> find(@PathVariable Integer id){
+    public ResponseEntity<?> find(@PathVariable Integer id){
         Rental rentalFromDB = rentalService.findById(id).orElse(null);
 
         if(rentalFromDB == null) {
@@ -54,32 +62,43 @@ public class RentalController {
         }
 
         log.info("Returning the rental's informations");
-        return new ResponseEntity<>(rentalFromDB, HttpStatus.OK);
+        return new ResponseEntity<>(new RentalDTO(rentalFromDB), HttpStatus.OK);
     }
 
-    /**
-     * Manage the creation of a rental when calling this endpoint
-     * @param name, surface, price, description, picture
-     * @return
-     * @throws JsonProcessingException
-     */
-    @PostMapping("/{id}")
-    public ResponseEntity<Object> addRental(@RequestParam String name,
-                                            @RequestParam int surface,
-                                            @RequestParam int price,
-                                            @RequestParam("file") MultipartFile picture,
-                                            @RequestParam String description) {
-        Rental rental =new Rental();
+    @PostMapping
+    public ResponseEntity<?> addRental(@RequestParam String name,
+                                            @RequestParam double surface,
+                                            @RequestParam double price,
+                                            @RequestParam MultipartFile picture,
+                                            @RequestParam String description,
+                                            Principal principal) {
 
+        String email = principal.getName();
+        Optional<User> user = userService.findByEmail(email);
+        if (user.isEmpty()) {
+            return ResponseEntity.badRequest().body("Owner not found");
+        }
+
+
+        Rental rental =new Rental();
+        rental.setOwner(user.get());
         rental.setName(name);
         rental.setSurface(surface);
         rental.setPrice(price);
-        String filename = fileStorageService.storeFile(picture);
-        rental.setPicture(filename);
+
+        // Handle the picture (store it and get its path)
+        String fileName = fileStorageService.storeFile(picture);
+        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/pictures/")
+                .path(fileName)
+                .toUriString();
+
+
+        rental.setPicture(fileDownloadUri);
         rental.setDescription(description);
         log.info("Saving the new rental");
-
-        return  new ResponseEntity<>(rentalService.save(rental), HttpStatus.CREATED);
+        rentalService.save(rental);
+        return  new ResponseEntity<>(Map.of("message","Rental created !"), HttpStatus.CREATED);
     }
 
     /**
@@ -89,10 +108,10 @@ public class RentalController {
      * @return
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Object> update(@PathVariable Integer id,
+    public ResponseEntity<?> update(@PathVariable Integer id,
                                          @RequestParam String name,
-                                         @RequestParam int surface,
-                                         @RequestParam int price,
+                                         @RequestParam double surface,
+                                         @RequestParam double price,
                                          @RequestParam String description) {
         Optional<Rental> rentalFormDB = rentalService.findById(id);
 
@@ -104,7 +123,8 @@ public class RentalController {
             rental.setPrice(price);
             rental.setDescription(description);
             log.info("Saving the new rental");
-            return  new ResponseEntity<>(rentalService.save(rental), HttpStatus.CREATED);
+            rentalService.save(rental);
+            return  new ResponseEntity<>(Map.of("message","Rental updated !"), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
