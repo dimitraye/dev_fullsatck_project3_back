@@ -1,5 +1,7 @@
 package com.chatop.rentalApp_back.models;
 
+
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,10 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -29,7 +28,7 @@ public class Message {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @Size(max = 2000)
+    @Column(length = 255)
     private String message;
     @CreatedDate
     private LocalDateTime createdAt;

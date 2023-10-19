@@ -1,5 +1,7 @@
 package com.chatop.rentalApp_back.models;
 
+
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,8 +9,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Data
@@ -22,11 +22,11 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Size(max = 255)
+    @Column(length = 255)
     private String email;
-    @Size(max = 255)
+    @Column(length = 255)
     private String name;
-    @Size(max = 255)
+    @Column(length = 255)
     private String password;
 
     @CreatedDate

@@ -1,14 +1,12 @@
-package com.chatop.messageApp_back.controllers;
+package com.chatop.rentalApp_back.controllers;
 
 import com.chatop.rentalApp_back.models.Message;
 import com.chatop.rentalApp_back.models.MessageResponse;
 import com.chatop.rentalApp_back.models.Rental;
 import com.chatop.rentalApp_back.models.User;
-import com.chatop.rentalApp_back.services.FileStorageService;
 import com.chatop.rentalApp_back.services.MessageService;
 import com.chatop.rentalApp_back.services.RentalService;
 import com.chatop.rentalApp_back.services.UserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -24,28 +23,21 @@ import java.util.Optional;
  */
 @Slf4j
 @RestController
-@RequestMapping("api/messages")
+@RequestMapping("/api/messages")
 @AllArgsConstructor
 public class MessageController {
     private final MessageService messageService;
     private final UserService userService;
     private final RentalService rentalService;
-    private final FileStorageService fileStorageService;
-
 
     @GetMapping
     public List<Message> findAll(Principal principal) {
         return messageService.findAll();
     }
 
-    /**
-     * Manage the creation of a message when calling this endpoint
-     * @param , user, description
-     * @return
-     * @throws JsonProcessingException
-     */
+
     @PostMapping
-    public ResponseEntity<Object> add(@RequestBody MessageResponse message, Principal principal) {
+    public ResponseEntity<?> add(@RequestBody MessageResponse message) {
 
         Message newMessage = new Message();
 
@@ -60,7 +52,11 @@ public class MessageController {
         newMessage.setRental(newRental.get());
 
         log.info("Saving the new message");
+        messageService.save(newMessage);
 
-        return  new ResponseEntity<>(messageService.save(newMessage), HttpStatus.CREATED);
+        return  new ResponseEntity<>(Map.of("message","Message send with success"),
+                HttpStatus.CREATED);
+
+
     }
 }
