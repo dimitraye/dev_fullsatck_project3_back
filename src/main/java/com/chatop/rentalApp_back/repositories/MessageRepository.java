@@ -5,6 +5,9 @@ import com.chatop.rentalApp_back.models.Rental;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Repository interface for managing message entities.
+ */
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Integer> {
 }

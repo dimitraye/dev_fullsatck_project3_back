@@ -17,6 +17,11 @@ public class FileStorageService {
 
     private final Path fileStorageLocation;
 
+    /**
+     * Constructs a FileStorageService with the specified upload directory.
+     *
+     * @param uploadDir The directory path where files will be uploaded.
+     */
     @Autowired
     public FileStorageService(@Value("${file.upload-dir}") String uploadDir) {
         this.fileStorageLocation = Paths.get(uploadDir)
@@ -31,6 +36,12 @@ public class FileStorageService {
         }
     }
 
+    /**
+     * Stores the given file in the configured upload directory.
+     *
+     * @param file The file to be stored.
+     * @return The stored file name.
+     */
     public String storeFile(MultipartFile file) {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 

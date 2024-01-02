@@ -31,10 +31,10 @@ public class UserController {
     PasswordEncoder passwordEncoder;
 
     /**
-     * Manage the user registration
-     * @param user
-
-     * @return
+     * Handles user registration.
+     *
+     * @param user User object containing user details.
+     * @return ResponseEntity containing a token in case of successful registration or an error message.
      */
     @PostMapping("/register")
     public ResponseEntity<?> save(@RequestBody User user) {
@@ -53,21 +53,23 @@ public class UserController {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        //sauvegarde du user
         try {
             userService.save(user);
-            //Envoie un message sur la page de redirection
         } catch (Exception e) {
             log.error("Unable to save user.", e);
             return ResponseEntity.badRequest().body("Unable to save user.");
         }
 
-        //creation du token
         String generateToken = userService.generateToken(user.getEmail());
         return ResponseEntity.ok(Collections.singletonMap("token", generateToken));
     }
 
-
+    /**
+     * Handles user login.
+     *
+     * @param loginForm Map containing email and password for login.
+     * @return ResponseEntity containing a token in case of successful login or an error message.
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginForm) {
         String email = loginForm.get("email");
@@ -84,20 +86,19 @@ public class UserController {
             return ResponseEntity.badRequest().body("User isn't registered.");
         }
 
-        //Vérification du password
         if (!passwordEncoder.matches(password, userFromDB.get().getPassword())){
             return ResponseEntity.badRequest().body("Email or Password is incorrect.");
         }
 
-        //creation du token
         String generateToken = userService.generateToken(email);
         return ResponseEntity.ok(Collections.singletonMap("token", generateToken));
     }
 
     /**
-     * Return the login  page
-     * @param principal
-     * @return
+     * Retrieves information about the authenticated user.
+     *
+     * @param principal Principal object representing the authenticated user.
+     * @return ResponseEntity containing UserDTO and HTTP status code.
      */
     @GetMapping("/me")
     public ResponseEntity<?> me(Principal principal) {

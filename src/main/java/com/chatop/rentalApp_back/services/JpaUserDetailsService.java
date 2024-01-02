@@ -8,22 +8,27 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
- * Service Spring Security qui gère l'authentification sécurisée du user
+ * Service that handles secure user authentication for Spring Security.
  */
 @Service
 public class JpaUserDetailsService implements UserDetailsService{
-
   private final UserRepository userRepository;
 
+  /**
+   * Constructs a JpaUserDetailsService with the specified UserRepository.
+   *
+   * @param userRepository The UserRepository to retrieve user information.
+   */
   public JpaUserDetailsService(UserRepository userRepository) {
     this.userRepository = userRepository;
   }
 
   /**
-   * Load a user by its username.
-   * @param email
-   * @return
-   * @throws UsernameNotFoundException
+   * Loads a user by its username (email).
+   *
+   * @param email The email of the user.
+   * @return A UserDetails object representing the authenticated user.
+   * @throws UsernameNotFoundException If the user with the given email is not found.
    */
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

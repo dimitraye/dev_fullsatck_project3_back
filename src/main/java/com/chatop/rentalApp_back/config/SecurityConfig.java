@@ -24,7 +24,10 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
-
+/**
+ * The SecurityConfig class configures the security settings for the application.
+ * It defines security filters, authorization rules, and authentication mechanisms.
+ */
 @AllArgsConstructor
 @Configuration
 @EnableWebSecurity
@@ -33,8 +36,13 @@ public class SecurityConfig {
   JpaUserDetailsService jpaUserDetailsService;
   private final RsaKeyProperties rsaKeys;
 
-
-
+    /**
+     * Configures the security filter chain.
+     *
+     * @param http HttpSecurity object for configuring security settings.
+     * @return SecurityFilterChain configured with rules for various endpoints.
+     * @throws Exception if there is an error in configuring security settings.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -43,26 +51,40 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/pictures/**")).permitAll()
                         .requestMatchers(antMatcher("/api/auth/login")).permitAll()
                         .requestMatchers(antMatcher("/api/auth/register")).permitAll()
+
                         .requestMatchers(antMatcher("/swagger-ui/**")).permitAll()
                         .requestMatchers(antMatcher("/v3/api-docs/**")).permitAll()
                         .requestMatchers(antMatcher("/swagger-resources/**")).permitAll()
                         .requestMatchers(antMatcher("/configuration/ui")).permitAll()
                         .requestMatchers(antMatcher("/configuration/security")).permitAll()
+
                         .requestMatchers(antMatcher("/h2-console/**")).permitAll()
                         .anyRequest().authenticated()
                 )
-                .headers(headers -> headers.frameOptions().sameOrigin())
+                .headers(headers -> headers.frameOptions().sameOrigin()
+                        .cacheControl().disable()
+                )
                 .userDetailsService(jpaUserDetailsService)
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
                 .sessionManagement(session ->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
 
+    /**
+     * Configures the JwtDecoder bean using the RSA public key.
+     *
+     * @return JwtDecoder configured with the RSA public key.
+     */
     @Bean
     JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(rsaKeys.publicKey()).build();
     }
 
+    /**
+     * Configures the JwtEncoder bean using the RSA public and private keys.
+     *
+     * @return JwtEncoder configured with the RSA public and private keys.
+     */
     @Bean
     JwtEncoder jwtEncoder() {
         JWK jwk = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
@@ -70,8 +92,13 @@ public class SecurityConfig {
         return new NimbusJwtEncoder(jwks);
     }
 
-  @Bean
-  PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
+    /**
+     * Configures the PasswordEncoder bean for encoding passwords.
+     *
+     * @return BCryptPasswordEncoder as the PasswordEncoder.
+     */
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+      }
 }
