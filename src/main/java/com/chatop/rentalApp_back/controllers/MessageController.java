@@ -30,12 +30,25 @@ public class MessageController {
     private final UserService userService;
     private final RentalService rentalService;
 
+
+    /**
+     * Retrieves a list of all messages.
+     *
+     * @param principal Principal object representing the authenticated user.
+     * @return List of Message objects.
+     */
     @GetMapping
     public List<Message> findAll(Principal principal) {
         return messageService.findAll();
     }
 
 
+    /**
+     * Adds a new message to the system.
+     *
+     * @param message MessageResponse object containing message details.
+     * @return ResponseEntity containing a success message and HTTP status code.
+     */
     @PostMapping
     public ResponseEntity<?> add(@RequestBody MessageResponse message) {
 

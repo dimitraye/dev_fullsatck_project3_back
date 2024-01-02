@@ -8,16 +8,29 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Service class for managing messages.
+ */
 @AllArgsConstructor
 @Service
 public class MessageService {
     private MessageRepository messageRepository;
 
-    //Create Message
+    /**
+     * Saves a new message.
+     *
+     * @param message The message to be saved.
+     * @return The saved message.
+     */
     public Message save(Message message) {
         return messageRepository.save(message);
     }
 
+    /**
+     * Retrieves all messages.
+     *
+     * @return A list of all messages.
+     */
     public List<Message> findAll() {
         return messageRepository.findAll();
     }

@@ -65,6 +65,18 @@ public class RentalController {
         return new ResponseEntity<>(new RentalDTO(rentalFromDB), HttpStatus.OK);
     }
 
+
+    /**
+     * Adds a new rental to the system.
+     *
+     * @param name        Name of the rental.
+     * @param surface     Surface area of the rental.
+     * @param price       Rental price.
+     * @param picture     MultipartFile representing the rental picture.
+     * @param description Description of the rental.
+     * @param principal   Principal object representing the authenticated user.
+     * @return ResponseEntity containing a success message and HTTP status code.
+     */
     @PostMapping
     public ResponseEntity<?> addRental(@RequestParam String name,
                                             @RequestParam double surface,
@@ -79,14 +91,13 @@ public class RentalController {
             return ResponseEntity.badRequest().body("Owner not found");
         }
 
-
-        Rental rental =new Rental();
+        Rental rental = new Rental();
         rental.setOwner(user.get());
         rental.setName(name);
         rental.setSurface(surface);
         rental.setPrice(price);
 
-        // Handle the picture (store it and get its path)
+        log.info("Handling the picture (store it and get its path)");
         String fileName = fileStorageService.storeFile(picture);
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/pictures/")
@@ -112,11 +123,23 @@ public class RentalController {
                                          @RequestParam String name,
                                          @RequestParam double surface,
                                          @RequestParam double price,
-                                         @RequestParam String description) {
+                                         @RequestParam String description,
+                                    Principal principal) {
+
+        String email = principal.getName();
+        Optional<User> currentUser = userService.findByEmail(email);
+        if (currentUser.isEmpty()) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+
         Optional<Rental> rentalFormDB = rentalService.findById(id);
 
         if (rentalFormDB.isPresent()) {
+
             Rental rental = rentalFormDB.get();
+            if (rental.getOwner() != currentUser.get()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User's edit forbiddened");
+            }
 
             rental.setName(name);
             rental.setSurface(surface);
