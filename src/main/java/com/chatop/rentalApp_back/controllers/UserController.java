@@ -26,9 +26,9 @@ import java.util.Optional;
 @RequestMapping("/api/auth")
 public class UserController {
 
-    UserService userService;
+    private UserService userService;
 
-    PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     /**
      * Handles user registration.

@@ -3,7 +3,6 @@ package com.chatop.rentalApp_back.services;
 import com.chatop.rentalApp_back.models.Rental;
 import com.chatop.rentalApp_back.repositories.RentalRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,20 +44,5 @@ public class RentalService {
      */
     public Rental save(Rental rental) {
         return rentalRepository.save(rental);
-    }
-
-    /**
-     * Converts a parameter to JSON format.
-     *
-     * @param paramIn The parameter to be converted.
-     * @return The parameter in JSON format.
-     */
-    public String paramTojson(String paramIn) {
-        if (paramIn.startsWith("{")) {
-            return paramIn;
-        }
-        paramIn = paramIn.replaceAll("=", "\":\"");
-        paramIn = paramIn.replaceAll("&", "\",\"");
-        return "{\"" + paramIn + "\"}";
     }
 }
