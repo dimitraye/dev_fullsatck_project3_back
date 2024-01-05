@@ -58,14 +58,12 @@ public class SecurityConfig {
                         .requestMatchers(antMatcher("/configuration/ui")).permitAll()
                         .requestMatchers(antMatcher("/configuration/security")).permitAll()
 
-                        .requestMatchers(antMatcher("/h2-console/**")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions().sameOrigin()
                         .cacheControl().disable()
                 )
                 .userDetailsService(jpaUserDetailsService)
-                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
                 .sessionManagement(session ->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }

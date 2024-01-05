@@ -1,23 +1,10 @@
 package com.chatop.rentalApp_back;
 
 import com.chatop.rentalApp_back.config.RsaKeyProperties;
-import com.chatop.rentalApp_back.models.Message;
-import com.chatop.rentalApp_back.models.Rental;
-import com.chatop.rentalApp_back.models.User;
-import com.chatop.rentalApp_back.repositories.UserRepository;
-import com.chatop.rentalApp_back.services.MessageService;
-import com.chatop.rentalApp_back.services.RentalService;
-import com.chatop.rentalApp_back.services.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @SpringBootApplication
